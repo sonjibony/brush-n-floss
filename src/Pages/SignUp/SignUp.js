@@ -1,13 +1,24 @@
 import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthProvider";
+import useToken from "../../hooks/useToken";
 
 const SignUp = () => {
+
+
   const { register, handleSubmit, formState: {errors} } = useForm();
 const {createUser, updateUser} = useContext(AuthContext);
 const [signUpError, setSignUpError] = useState('');
+const [createdUserEmail, setCreatedUserEmail]= useState('');
+const [token] = useToken(createdUserEmail);
+const navigate = useNavigate();
+
+if(token){
+  navigate('/');
+}
+
 //implementing sign up
 const handleSignUp = (data) => {
 console.log(data);
@@ -21,14 +32,39 @@ createUser(data.email, data.password)
         displayName: data.name
     }
     updateUser(userInfo)
-    .then(() => {})
+    .then(() => {
+      saveUser(data.name, data.email);
+    })
     .catch(error => console.error(error));
 })
 .catch(error => {
     console.error(error)
-    setSignUpError(error.message)
+    setSignUpError(error.message) 
 });
 }
+
+//save user to db
+const saveUser = (name, email) => {
+const user ={ name, email};
+fetch('https://brush-n-floss-server.vercel.app/users',{
+  method: 'POST',
+  headers: {
+    'content-type': 'application/json'
+
+  },
+  body: JSON.stringify(user)
+})
+.then(res => res.json())
+.then(data => {
+  console.log('saved user',data);
+setCreatedUserEmail(email);
+})
+
+}
+
+//getting token
+
+
 
   return (
     <div className="h-[800px]  flex justify-center items-center">

@@ -26,7 +26,7 @@ const[loading, setLoading] = useState(true);
 
 //update user name/ photo
 const updateUser = (userInfo) => {
-    return updateProfile(user, userInfo);
+    return updateProfile(auth.currentUser, userInfo);
 }
 
     //SIGN OUT
